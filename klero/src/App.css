@@ -5,8 +5,8 @@
   text-align: center;
 }
 
-body{
-  background-color: rgb(67 56 202 / var(--tw-bg-opacity, 1))  ;
+body {
+  background-color: #f0f0f0; /* Changed background color to a light grey */
 }
 
 .logo {
