@@ -1,16 +1,25 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './LoginPage';
 import DashboardPage from './DashboardPage';
+import PrivateRoute from './PrivateRoute';
 import './App.css';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <PrivateRoute>
+            <DashboardPage />
+          </PrivateRoute>
+        } 
+      />
+      {/* Catch-all route to redirect to login if no match */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
