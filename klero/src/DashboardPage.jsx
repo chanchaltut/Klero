@@ -121,7 +121,7 @@ const Dashboard = () => {
       <div className={`
         fixed inset-0 z-10 md:relative 
         ${isMobileMenuOpen ? 'block' : 'hidden'} 
-        md:block md:w-[220px] 
+        md:block md:w-[250px] 
         bg-white border-r shadow-sm overflow-y-auto
       `}>
         <div className="sticky top-0 bg-white z-10 p-4 border-b hidden md:block">
