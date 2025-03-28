@@ -83,6 +83,7 @@ const MessageIcon = () => (
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const SidebarItem = ({ icon: Icon, label, section }) => (
     <button 
@@ -93,7 +94,10 @@ const Dashboard = () => {
           : 'text-gray-600 hover:bg-gray-100'
         }
       `}
-      onClick={() => setActiveSection(section)}
+      onClick={() => {
+        setActiveSection(section);
+        setIsMobileMenuOpen(false);
+      }}
     >
       <span className="mr-2">{Icon}</span>
       {label}
@@ -101,12 +105,28 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="flex w-screen bg-[#f8fafc] font-sans">
-      {/* Sidebar */}
-      <div className="w-[220px] bg-white border-r shadow-sm overflow-y-auto">
-        <div className="sticky top-0 bg-white z-10 p-4 border-b">
+    <div className="flex flex-col md:flex-row w-screen min-h-screen bg-[#f8fafc] font-sans">
+      {/* Mobile Header */}
+      <div className="md:hidden sticky top-0 z-20 bg-white shadow-sm p-4 flex justify-between items-center">
+        <img src="/Klero IMG.png" alt="Klero" className="h-8" />
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="text-gray-600"
+        >
+          {isMobileMenuOpen ? '✕' : '☰'}
+        </button>
+      </div>
+
+      {/* Sidebar for Desktop and Mobile */}
+      <div className={`
+        fixed inset-0 z-10 md:relative 
+        ${isMobileMenuOpen ? 'block' : 'hidden'} 
+        md:block md:w-[220px] 
+        bg-white border-r shadow-sm overflow-y-auto
+      `}>
+        <div className="sticky top-0 bg-white z-10 p-4 border-b hidden md:block">
           <div className="flex items-center mb-4">
-           <img src="/Klero IMG.png" alt="Klero" className="w-full h-auto" />
+            <img src="/Klero IMG.png" alt="Klero" className="w-full h-auto" />
           </div>
         </div>
         
@@ -142,8 +162,8 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-[#a5d6a7] rounded-lg p-4">
             <h4 className="text-sm font-bold text-white mb-2">Active Orders</h4>
             <p className="text-2xl font-bold text-white">0</p>
@@ -158,11 +178,11 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Proxy Orders</h2>
           <p className="text-gray-500 mb-4">You don't have any active proxies. Get started here.</p>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <button className="bg-[#3b82f6] text-white p-3 rounded-lg">
               Mobile Proxy Plans
             </button>
@@ -172,14 +192,14 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
           <h2 className="text-xl font-semibold mb-4">Terminated & Inactive Orders</h2>
           <p className="text-gray-500">No inactive orders.</p>
         </div>
       </div>
 
       {/* Support Chat */}
-      <button className="fixed bottom-6 right-6 bg-[#3b82f6] text-white p-3 rounded-full shadow-lg">
+      <button className="fixed bottom-6 right-6 bg-[#3b82f6] text-white p-3 rounded-full shadow-lg z-20">
         <MessageIcon />
       </button>
     </div>
