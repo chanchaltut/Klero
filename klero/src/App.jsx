@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './LoginPage';
-import DashboardPage from './DashboardPage';
-import PrivateRoute from './PrivateRoute';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import PrivateRoute from './components/PrivateRoute';
 import './App.css';
 
 function App() {
