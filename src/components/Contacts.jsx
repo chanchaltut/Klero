@@ -1,46 +1,45 @@
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 
-export const ContactCard = ({ contact, onDelete }) => {
+export const ContactCard = ({ contact }) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'CONTACT',
     item: { contact },
     collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
+      isDragging: !!monitor.isDragging(),
     }),
   });
 
   return (
     <div
       ref={drag}
-      className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 ${
-        isDragging ? 'opacity-50' : ''
-      }`}
+      className={`
+        border border-gray-200 rounded-lg p-4
+        hover:border-indigo-300 transition-colors
+        cursor-move
+        ${isDragging ? 'opacity-50' : 'opacity-100'}
+      `}
     >
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-lg font-medium text-gray-900">{contact.name}</h3>
-          <p className="text-sm text-gray-500">{contact.email}</p>
-          <p className="text-sm text-gray-500">{contact.phone}</p>
-          <p className="text-sm text-gray-500">{contact.type}</p>
-          {contact.type === 'Hospital' && (
-            <p className="text-sm text-gray-500">{contact.department}</p>
-          )}
-          {contact.type === 'Heir' && (
-            <p className="text-sm text-gray-500">Relationship: {contact.relationship}</p>
-          )}
+          <h4 className="font-medium">{contact.name}</h4>
+          <p className="text-sm text-gray-600">{contact.email}</p>
+          <p className="text-sm text-gray-600">{contact.phone}</p>
         </div>
-        {onDelete && (
-          <button
-            onClick={() => onDelete(contact.id)}
-            className="text-red-600 hover:text-red-900"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-          </button>
-        )}
+        <span className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded">
+          {contact.type}
+        </span>
       </div>
+      {contact.department && (
+        <p className="text-sm text-gray-600 mt-2">
+          Department: {contact.department}
+        </p>
+      )}
+      {contact.relationship && (
+        <p className="text-sm text-gray-600 mt-2">
+          Relationship: {contact.relationship}
+        </p>
+      )}
     </div>
   );
 };
@@ -176,7 +175,6 @@ const Contacts = () => {
           <ContactCard
             key={contact.id}
             contact={contact}
-            onDelete={handleDeleteContact}
           />
         ))}
       </div>

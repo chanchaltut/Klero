@@ -94,98 +94,144 @@ const RequestCard = ({ request, onAddContact }) => {
 };
 
 const RequestContacts = () => {
+  const [contacts, setContacts] = useState([
+    {
+      id: 1,
+      name: 'John Doe',
+      email: 'john@example.com',
+      phone: '123-456-7890',
+      type: 'Hospital',
+      department: 'Cardiology'
+    },
+    {
+      id: 2,
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      phone: '987-654-3210',
+      type: 'Heir',
+      relationship: 'Daughter'
+    }
+  ]);
+
   const [requests, setRequests] = useState([
     {
       id: 1,
       subject: 'Monthly Report',
-      status: 'Scheduled',
+      recipients: [],
+      status: 'Pending',
       scheduledDate: '2024-03-20T10:00',
-      contacts: []
-    },
-    // Add more requests as needed
-  ]);
-
-  const [availableContacts, setAvailableContacts] = useState([
-    {
-      id: 1,
-      name: 'City Hospital',
-      email: 'info@cityhospital.com',
-      phone: '123-456-7890',
-      type: 'Hospital',
-      department: 'General'
-    },
-    {
-      id: 2,
-      name: 'John Smith',
-      email: 'john@example.com',
-      phone: '123-456-7891',
-      type: 'Heir',
-      relationship: 'Son'
-    },
-    {
-      id: 3,
-      name: 'Legal Services Inc.',
-      email: 'legal@example.com',
-      phone: '123-456-7892',
-      type: 'Notary'
+      type: 'Report'
     }
   ]);
 
-  const handleAddContact = (requestId, contact, remove = false) => {
-    setRequests(requests.map(request => {
-      if (request.id === requestId) {
-        if (remove) {
-          return {
-            ...request,
-            contacts: request.contacts.filter(c => c.id !== contact.id)
-          };
-        } else {
-          // Check if contact is already added
-          if (!request.contacts.find(c => c.id === contact.id)) {
-            return {
-              ...request,
-              contacts: [...request.contacts, contact]
-            };
-          }
-        }
+  const [, drop] = useDrop({
+    accept: 'CONTACT',
+    drop: (item, monitor) => {
+      const { contact } = item;
+      const requestId = monitor.getItem().requestId;
+      
+      if (requestId) {
+        setRequests(prevRequests => 
+          prevRequests.map(request => 
+            request.id === requestId
+              ? {
+                  ...request,
+                  recipients: [...request.recipients, contact.email]
+                }
+              : request
+          )
+        );
       }
-      return request;
-    }));
+    }
+  });
+
+  const handleAddRequest = () => {
+    const newId = Math.max(...requests.map(r => r.id)) + 1;
+    setRequests([
+      ...requests,
+      {
+        id: newId,
+        subject: 'New Request',
+        recipients: [],
+        status: 'Pending',
+        scheduledDate: new Date().toISOString().slice(0, 16),
+        type: 'Report'
+      }
+    ]);
+  };
+
+  const handleDeleteRequest = (requestId) => {
+    if (window.confirm('Are you sure you want to delete this request?')) {
+      setRequests(requests.filter(request => request.id !== requestId));
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Requests & Contacts</h2>
-        <div className="text-sm text-gray-500">
-          Drag contacts from the right panel to associate them with requests
-        </div>
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Request & Contacts</h2>
+        <button
+          onClick={handleAddRequest}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+        >
+          Add New Request
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Requests Column */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">Requests</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Contacts Section */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h3 className="text-lg font-semibold mb-4">Available Contacts</h3>
           <div className="space-y-4">
-            {requests.map((request) => (
-              <RequestCard
-                key={request.id}
-                request={request}
-                onAddContact={handleAddContact}
-              />
+            {contacts.map(contact => (
+              <ContactCard key={contact.id} contact={contact} />
             ))}
           </div>
         </div>
 
-        {/* Contacts Column */}
-        <div>
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Available Contacts</h3>
+        {/* Requests Section */}
+        <div ref={drop} className="bg-white rounded-lg shadow p-4">
+          <h3 className="text-lg font-semibold mb-4">Email Requests</h3>
           <div className="space-y-4">
-            {availableContacts.map((contact) => (
-              <DraggableContact
-                key={contact.id}
-                contact={contact}
-              />
+            {requests.map(request => (
+              <div
+                key={request.id}
+                className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-medium">{request.subject}</h4>
+                  <button
+                    onClick={() => handleDeleteRequest(request.id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="text-sm text-gray-600 mb-2">
+                  <p>Status: {request.status}</p>
+                  <p>Scheduled: {new Date(request.scheduledDate).toLocaleString()}</p>
+                </div>
+                <div className="mt-2">
+                  <h5 className="text-sm font-medium mb-1">Recipients:</h5>
+                  <div className="flex flex-wrap gap-2">
+                    {request.recipients.map((recipient, index) => (
+                      <span
+                        key={index}
+                        className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded"
+                      >
+                        {recipient}
+                      </span>
+                    ))}
+                    {request.recipients.length === 0 && (
+                      <span className="text-gray-500 text-sm">
+                        Drag contacts here to add recipients
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
