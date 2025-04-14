@@ -7,6 +7,7 @@ import ManageTeam from '../components/ManageTeam';
 import Requests from '../components/Requests';
 import Contacts from '../components/Contacts';
 import RequestContacts from '../components/RequestContacts';
+import Chat from '../components/Chat';
 
 // Custom SVG Icons
 const UsersIcon = () => (
@@ -124,48 +125,46 @@ const DashboardPage = () => {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex gap-8 h-[calc(100vh-12rem)] w-full">
+        <main className="flex-1 w-full px-2 sm:px-4 lg:px-6 py-4">
+          <div className="flex gap-4 h-[calc(100vh-8rem)] w-full">
             {/* Navigation */}
             <nav className={`
-              fixed md:relative top-0 left-0 h-full w-64 
+              fixed md:relative top-0 left-0 h-full w-48 
               bg-white shadow-lg md:shadow-none
               transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
               md:transform-none transition-transform duration-200 ease-in-out
               z-10 md:z-0
             `}>
-              <div className="p-4 space-y-4 h-full overflow-y-auto">
+              <div className="p-3 space-y-2 h-full overflow-y-auto">
                 {navItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => handleSectionChange(item.id)}
                     className={`
-                      w-full flex items-center space-x-3 px-4 py-2 rounded-md
-                      transition-colors duration-200
+                      w-full flex items-center space-x-2 px-3 py-2 rounded-md text-sm
+                      transition-colors duration-200 text-left
                       ${activeSection === item.id
                         ? 'bg-indigo-100 text-indigo-700'
                         : 'text-gray-600 hover:bg-gray-100'
                       }
                     `}
                   >
-                    {item.icon}
-                    <span>{item.label}</span>
+                    <span className="w-5 h-5 flex-shrink-0">{item.icon}</span>
+                    <span className="truncate">{item.label}</span>
                   </button>
                 ))}
               </div>
             </nav>
 
             {/* Content Area */}
-            <div className="flex-1 bg-white rounded-lg shadow p-6 overflow-y-auto overflow-x-auto w-full min-w-0">
+            <div className="flex-1 bg-white rounded-lg shadow p-4 overflow-y-auto overflow-x-auto w-full min-w-0">
               {renderContent()}
             </div>
           </div>
         </main>
 
-        {/* Support Chat Button */}
-        <button className="fixed bottom-6 right-6 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors duration-200">
-          <MessageIcon />
-        </button>
+        {/* Chat Component */}
+        <Chat />
       </div>
     </DndProvider>
   );
