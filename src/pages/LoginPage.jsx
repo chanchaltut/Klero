@@ -57,7 +57,13 @@ const LoginPage = () => {
     return (
         <div className="w-full min-h-screen bg-indigo-700 flex flex-col items-center justify-center p-4 overflow-hidden">
             {/* Logo */}
-            <div className="text-white text-4xl font-bold mb-8">KLERO</div>
+            <div className="mb-8">
+                <img 
+                    src="/klero-image.png" 
+                    alt="Klero Logo" 
+                    className="h-16 w-auto object-contain"
+                />
+            </div>
             
             {/* Login Card */}
             <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
