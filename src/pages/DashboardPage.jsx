@@ -116,13 +116,13 @@ const DashboardPage = () => {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden fixed top-2 right-2 z-20">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="bg-white p-1 rounded-md shadow text-xs"
-          >
-            {isMobileMenuOpen ? "✕" : "☰"}
-          </button>
-        </div>
+        >
+          {isMobileMenuOpen ? "✕" : "☰"}
+        </button>
+      </div>
 
         {/* Main Content */}
         <main className="flex-1 w-full px-1 sm:px-2 lg:px-3 py-2">
@@ -140,7 +140,7 @@ const DashboardPage = () => {
                   <button
                     key={item.id}
                     onClick={() => handleSectionChange(item.id)}
-                    className={`
+        className={`
                       w-full flex items-center space-x-1.5 px-2 py-1 rounded-md text-xs
                       transition-colors duration-200 text-left
                       ${activeSection === item.id
@@ -159,7 +159,7 @@ const DashboardPage = () => {
             {/* Content Area */}
             <div className="flex-1 bg-white rounded-md shadow p-2 overflow-y-auto overflow-x-auto w-full min-w-0">
               <div className="h-full">
-                {renderContent()}
+              {renderContent()}
               </div>
             </div>
           </div>

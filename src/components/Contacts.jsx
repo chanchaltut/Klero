@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 
-export const ContactCard = ({ contact }) => {
+export const ContactCard = ({ contact, onClick }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'contact',
-    item: { id: contact.id, type: contact.type },
+    type: 'CONTACT',
+    item: { contact },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
   }));
 
+  const handleClick = (e) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <div
       ref={drag}
-      className={`p-1.5 border border-gray-200 rounded-md bg-white shadow-sm cursor-move ${
+      onClick={handleClick}
+      className={`p-1.5 border border-gray-200 rounded-md bg-white shadow-sm cursor-pointer hover:bg-gray-50 ${
         isDragging ? 'opacity-50' : 'opacity-100'
       }`}
     >
@@ -27,6 +34,34 @@ export const ContactCard = ({ contact }) => {
         </div>
         <div className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600">{contact.type}</div>
       </div>
+
+      {/* Expanded Details */}
+      {isExpanded && (
+        <div className="mt-2 pt-2 border-t border-gray-100">
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <p className="text-gray-500">Phone</p>
+              <p className="text-gray-900">{contact.phone}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Type</p>
+              <p className="text-gray-900">{contact.type}</p>
+            </div>
+            {contact.department && (
+              <div>
+                <p className="text-gray-500">Department</p>
+                <p className="text-gray-900">{contact.department}</p>
+              </div>
+            )}
+            {contact.relationship && (
+              <div>
+                <p className="text-gray-500">Relationship</p>
+                <p className="text-gray-900">{contact.relationship}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -122,7 +157,10 @@ const Contacts = () => {
       <div className="flex-1 overflow-y-auto">
         <div className="space-y-1">
           {filteredContacts.map((contact) => (
-            <ContactCard key={contact.id} contact={contact} />
+            <ContactCard 
+              key={contact.id} 
+              contact={contact}
+            />
           ))}
         </div>
       </div>

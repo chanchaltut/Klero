@@ -39,9 +39,14 @@ const DraggableContact = ({ contact }) => {
 const RequestCard = ({ request, onAddContact }) => {
   const [{ isOver }, drop] = useDrop({
     accept: 'CONTACT',
-    drop: (item) => onAddContact(request.id, item.contact),
+    drop: (item) => {
+      const { contact } = item;
+      if (!request.recipients.includes(contact.email)) {
+        onAddContact(request.id, contact);
+      }
+    },
     collect: (monitor) => ({
-      isOver: monitor.isDragging(),
+      isOver: monitor.isOver(),
     }),
   });
 
@@ -59,21 +64,18 @@ const RequestCard = ({ request, onAddContact }) => {
       </p>
       
       {/* Associated Contacts */}
-      {request.contacts && request.contacts.length > 0 && (
-        <div>
-          <h4 className="text-[10px] font-medium text-gray-700 mb-1">Associated Contacts:</h4>
+      {request.recipients && request.recipients.length > 0 && (
+        <div className="mt-1">
+          <h4 className="text-[10px] font-medium text-gray-700 mb-1">Recipients:</h4>
           <div className="space-y-1">
-            {request.contacts.map((contact) => (
+            {request.recipients.map((email, index) => (
               <div
-                key={contact.id}
+                key={index}
                 className="flex items-center justify-between bg-gray-50 p-1 rounded"
               >
-                <div>
-                  <p className="text-[10px] font-medium">{contact.name}</p>
-                  <p className="text-[10px] text-gray-500">{contact.type}</p>
-                </div>
+                <p className="text-[10px] text-gray-600">{email}</p>
                 <button
-                  onClick={() => onAddContact(request.id, contact, true)}
+                  onClick={() => onAddContact(request.id, { email }, true)}
                   className="text-red-600 hover:text-red-900"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -87,7 +89,7 @@ const RequestCard = ({ request, onAddContact }) => {
       )}
       
       <div className="mt-2 text-[10px] text-gray-500">
-        Drop contacts here to associate them with this request
+        Drop contacts here to add them as recipients
       </div>
     </div>
   );
@@ -124,26 +126,26 @@ const RequestContacts = () => {
     }
   ]);
 
-  const [, drop] = useDrop({
-    accept: 'CONTACT',
-    drop: (item, monitor) => {
-      const { contact } = item;
-      const requestId = monitor.getItem().requestId;
-      
-      if (requestId) {
-        setRequests(prevRequests => 
-          prevRequests.map(request => 
-            request.id === requestId
-              ? {
-                  ...request,
-                  recipients: [...request.recipients, contact.email]
-                }
-              : request
-          )
-        );
-      }
-    }
-  });
+  const handleAddContact = (requestId, contact, isRemove = false) => {
+    setRequests(prevRequests => 
+      prevRequests.map(request => {
+        if (request.id === requestId) {
+          if (isRemove) {
+            return {
+              ...request,
+              recipients: request.recipients.filter(email => email !== contact.email)
+            };
+          } else {
+            return {
+              ...request,
+              recipients: [...new Set([...request.recipients, contact.email])]
+            };
+          }
+        }
+        return request;
+      })
+    );
+  };
 
   const handleAddRequest = () => {
     const newId = Math.max(...requests.map(r => r.id)) + 1;
@@ -190,48 +192,15 @@ const RequestContacts = () => {
         </div>
 
         {/* Requests Section */}
-        <div ref={drop} className="bg-white rounded-md shadow p-2">
+        <div className="bg-white rounded-md shadow p-2">
           <h3 className="text-xs font-semibold mb-2">Email Requests</h3>
           <div className="space-y-2">
             {requests.map(request => (
-              <div
-                key={request.id}
-                className="border border-gray-200 rounded-md p-2 hover:border-indigo-300 transition-colors"
-              >
-                <div className="flex justify-between items-start mb-1">
-                  <h4 className="text-xs font-medium">{request.subject}</h4>
-                  <button
-                    onClick={() => handleDeleteRequest(request.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="text-[10px] text-gray-600 mb-1">
-                  <p>Status: {request.status}</p>
-                  <p>Scheduled: {new Date(request.scheduledDate).toLocaleString()}</p>
-                </div>
-                <div className="mt-1">
-                  <h5 className="text-[10px] font-medium mb-0.5">Recipients:</h5>
-                  <div className="flex flex-wrap gap-1">
-                    {request.recipients.map((recipient, index) => (
-                      <span
-                        key={index}
-                        className="bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.5 rounded"
-                      >
-                        {recipient}
-                      </span>
-                    ))}
-                    {request.recipients.length === 0 && (
-                      <span className="text-gray-500 text-[10px]">
-                        Drag contacts here to add recipients
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <RequestCard 
+                key={request.id} 
+                request={request} 
+                onAddContact={handleAddContact}
+              />
             ))}
           </div>
         </div>
