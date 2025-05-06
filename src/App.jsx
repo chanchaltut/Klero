@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import CicladeSubmission from './pages/CicladeSubmission';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/ciclade-submission" element={<CicladeSubmission />} />
         {/* Catch-all route to redirect to login if no match */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

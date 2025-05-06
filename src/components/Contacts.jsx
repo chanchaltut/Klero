@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 
-export const ContactCard = ({ contact, onClick }) => {
+export const ContactCard = ({ contact, onEdit }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'CONTACT',
     item: { contact },
@@ -14,6 +15,12 @@ export const ContactCard = ({ contact, onClick }) => {
   const handleClick = (e) => {
     e.stopPropagation();
     setIsExpanded(!isExpanded);
+    setDropdownOpen(false);
+  };
+
+  const handleDropdown = (e) => {
+    e.stopPropagation();
+    setDropdownOpen((prev) => !prev);
   };
 
   return (
@@ -33,6 +40,29 @@ export const ContactCard = ({ contact, onClick }) => {
           <p className="text-[10px] text-gray-500 truncate leading-tight">{contact.email}</p>
         </div>
         <div className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600">{contact.type}</div>
+        <div className="relative">
+          <button
+            className="text-gray-400 hover:text-gray-600 px-1"
+            onClick={handleDropdown}
+            tabIndex={-1}
+          >
+            &#x22EE; {/* vertical ellipsis */}
+          </button>
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-2 w-24 bg-white border rounded shadow z-10">
+              <button
+                className="block w-full text-left px-3 py-1 text-xs hover:bg-gray-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDropdownOpen(false);
+                  onEdit(contact);
+                }}
+              >
+                Edit
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Expanded Details */}
@@ -59,6 +89,17 @@ export const ContactCard = ({ contact, onClick }) => {
                 <p className="text-gray-900">{contact.relationship}</p>
               </div>
             )}
+          </div>
+          <div className="flex justify-end mt-2">
+            <button
+              className="px-3 py-1 text-xs rounded bg-indigo-600 text-white hover:bg-indigo-700 transition"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(contact);
+              }}
+            >
+              Edit
+            </button>
           </div>
         </div>
       )}
@@ -117,6 +158,8 @@ const Contacts = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [editContact, setEditContact] = useState(null);
+  const [editForm, setEditForm] = useState({});
 
   const filteredContacts = contacts.filter((contact) => {
     const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -124,6 +167,23 @@ const Contacts = () => {
     const matchesType = filterType === 'all' || contact.type === filterType;
     return matchesSearch && matchesType;
   });
+
+  const handleEdit = (contact) => {
+    setEditContact(contact);
+    setEditForm(contact);
+  };
+
+  const handleEditChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    setContacts((prev) =>
+      prev.map((c) => (c.id === editContact.id ? { ...c, ...editForm } : c))
+    );
+    setEditContact(null);
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -157,13 +217,86 @@ const Contacts = () => {
       <div className="flex-1 overflow-y-auto">
         <div className="space-y-1">
           {filteredContacts.map((contact) => (
-            <ContactCard 
-              key={contact.id} 
+            <ContactCard
+              key={contact.id}
               contact={contact}
+              onEdit={handleEdit}
             />
           ))}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editContact && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <form
+            className="bg-white p-4 rounded shadow w-80 space-y-2"
+            onSubmit={handleEditSubmit}
+          >
+            <h3 className="text-sm font-semibold mb-2">Edit Contact</h3>
+            <input
+              name="name"
+              value={editForm.name || ''}
+              onChange={handleEditChange}
+              className="w-full border px-2 py-1 rounded text-xs"
+              placeholder="Name"
+            />
+            <input
+              name="email"
+              value={editForm.email || ''}
+              onChange={handleEditChange}
+              className="w-full border px-2 py-1 rounded text-xs"
+              placeholder="Email"
+            />
+            <input
+              name="phone"
+              value={editForm.phone || ''}
+              onChange={handleEditChange}
+              className="w-full border px-2 py-1 rounded text-xs"
+              placeholder="Phone"
+            />
+            <input
+              name="department"
+              value={editForm.department || ''}
+              onChange={handleEditChange}
+              className="w-full border px-2 py-1 rounded text-xs"
+              placeholder="Department"
+            />
+            <input
+              name="relationship"
+              value={editForm.relationship || ''}
+              onChange={handleEditChange}
+              className="w-full border px-2 py-1 rounded text-xs"
+              placeholder="Relationship"
+            />
+            <select
+              name="type"
+              value={editForm.type || ''}
+              onChange={handleEditChange}
+              className="w-full border px-2 py-1 rounded text-xs"
+            >
+              <option value="Hospital">Hospital</option>
+              <option value="Individual">Individual</option>
+              <option value="Company">Company</option>
+            </select>
+            <div className="flex justify-end space-x-2 mt-2">
+              <button
+                type="button"
+                className="px-2 py-1 text-xs bg-gray-200 rounded"
+                onClick={() => setEditContact(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-2 py-1 text-xs bg-indigo-600 text-white rounded"
+              >
+                Save
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };
